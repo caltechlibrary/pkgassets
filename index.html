@@ -29,9 +29,8 @@ or service.</p>
 
 <h2>USAGE</h2>
 
-<blockquote>
-<p>pkgasset MAP_VAR_NAME NAME_OF_DIRECTORY_HOLDING_ASSETS</p>
-</blockquote>
+<pre><code>    pkgasset MAP_VAR_NAME NAME_OF_DIRECTORY_HOLDING_ASSETS
+</code></pre>
 
 <p>This will result in a Go map[string][]byte structure holding the assets discovered by walking the directory
 tree provided. The map&rsquo;s key will represent a path (beginning with &ldquo;/&rdquo;) pointing at the asset ingested.</p>
