@@ -172,6 +172,7 @@ func main() {
 	}
 	fmt.Fprintf(fp, `
 	}
-)`)
+)
+`)
 
 }
