@@ -31,12 +31,12 @@ used to harvest assets).
 	examples = `
 EXAMPLE
 
-> %s MAP_VARAIBLE_NAME NAME_OF_DIRECTORY_HOLDING_ASSETS
+  %s MAP_VARAIBLE_NAME NAME_OF_DIRECTORY_HOLDING_ASSETS
 
 This will result in a Go of type map[string][]byte holding the assets discovered by walking the directory
 tree provided. The map's key will represent a path (beginning with "/") pointing at the asset ingested.
 
-> %s DefaultSite htdocs
+  %s DefaultSite htdocs
 
 Assuming that _htdocs_ held
 
@@ -49,8 +49,8 @@ path in the map will not include htdocs and would result in a Go source file lik
     package defaultsite
 
     var DefaultSite = map[string][]byte{
-        "/index.html": []byte("... the contents of index.html would be here ..."),
-        "/css/site.css": []byte("... the contents of css/site.css would be here ..."),
+        "/index.html": []byte{}, // ... the contents of index.html would be here ...
+        "/css/site.css": []byte{}, // ... the contents of css/site.css would be here ...
     }
 
 If a package name is not provided then the package name will a lowercase name of the map variable name (e.g. 
@@ -165,7 +165,15 @@ func main() {
 			fmt.Fprintf(os.Stderr, "Can't read %q, %s", path, err)
 			return nil
 		}
-		fmt.Fprintf(fp, "\n    %q: []byte(`%x`),", fpath, bArray)
+		fmt.Fprintf(fp, "\n    %q: []byte{ ", fpath)
+		for i, b := range bArray {
+			if i == 0 {
+				fmt.Fprintf(fp, "0x%x", b)
+			} else {
+				fmt.Fprintf(fp, ", 0x%x", b)
+			}
+		}
+		fmt.Fprintf(fp, " },\n")
 		return nil
 	}); err != nil {
 		fmt.Fprintf(os.Stderr, "Can't walk path %q, %s\n", assetDir, err)
