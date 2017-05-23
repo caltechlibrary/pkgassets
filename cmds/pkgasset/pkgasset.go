@@ -152,7 +152,7 @@ func main() {
 	}
 	fmt.Fprintf(fp, "package %s\n\n", packageName)
 	fmt.Fprintf(fp, `var (
-	// %s is a map to asset files associated with %s package
+    // %s is a map to asset files associated with %s package
     %s = map[string][]byte{`, mapVName, packageName, mapVName)
 	// Walk the asset directory structure and for each file found at it to the map...
 	if err = filepath.Walk(assetDir, func(path string, info os.FileInfo, err error) error {
