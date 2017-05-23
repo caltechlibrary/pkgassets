@@ -165,15 +165,11 @@ func main() {
 			fmt.Fprintf(os.Stderr, "Can't read %q, %s", path, err)
 			return nil
 		}
-		fmt.Fprintf(fp, "\n    %q: []byte{ ", fpath)
-		for i, b := range bArray {
-			if i == 0 {
-				fmt.Fprintf(fp, "0x%x", b)
-			} else {
-				fmt.Fprintf(fp, ", 0x%x", b)
-			}
+		if bSrc, err := ByteArrayToDecl(bArray); err == nil {
+			fmt.Fprintf(fp, "\n    %q: %s,\n", fpath, bSrc)
+		} else {
+			fmt.Fprintf(os.Stderr, "Can't convert to byte array notation %s, %s\n", path, err)
 		}
-		fmt.Fprintf(fp, " },\n")
 		return nil
 	}); err != nil {
 		fmt.Fprintf(os.Stderr, "Can't walk path %q, %s\n", assetDir, err)
