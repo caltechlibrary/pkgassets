@@ -7,7 +7,9 @@ or service.
 
 ## USAGE
 
-> pkgasset MAP_VAR_NAME NAME_OF_DIRECTORY_HOLDING_ASSETS
+```
+    pkgasset MAP_VAR_NAME NAME_OF_DIRECTORY_HOLDING_ASSETS
+```
 
 This will result in a Go map[string][]byte structure holding the assets discovered by walking the directory
 tree provided. The map's key will represent a path (beginning with "/") pointing at the asset ingested.
