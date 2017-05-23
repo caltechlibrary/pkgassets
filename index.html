@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Caltech Library's Digital Library Development Sandbox</title>
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="/css/site.css">
+</head>
+<body>
+<header>
+<a href="http://library.caltech.edu"><img src="/assets/liblogo.gif" alt="Caltech Library logo"></a>
+</header>
+<nav>
+<ul>
+<li><a href="/">Home</a></li>
+<li><a href="index.html">README</a></li>
+<li><a href="license.html">LICENSE</a></li>
+<li><a href="install.html">INSTALL</a></li>
+<li><a href="https://github.com/caltechlibrary/pkgasset">Github</a></li>
+</ul>
+
+</nav>
+
+<section>
+<h1>pkgasset</h1>
+
+<p>Generate a Go source file with embedded file assets. This is useful where you want to embed web content,
+template source code and other assets that can be used for default behavior in a Go command line program
+or service.</p>
+
+<h2>USAGE</h2>
+
+<blockquote>
+<p>pkgasset MAP_VAR_NAME NAME_OF_DIRECTORY_HOLDING_ASSETS</p>
+</blockquote>
+
+<p>This will result in a Go map[string][]byte structure holding the assets discovered by walking the directory
+tree provided. The map&rsquo;s key will represent a path (beginning with &ldquo;/&rdquo;) pointing at the asset ingested.</p>
+
+<pre><code class="language-shell">    pkgasset DefaultSite htdocs
+</code></pre>
+
+<p>Assuming that <em>htdocs</em> held</p>
+
+<ul>
+<li>index.html</li>
+<li>css/site.css</li>
+</ul>
+
+<p>In this example the htdocs directory will be crawled and all the files found harvested as a an asset. The
+path in the map will not include htdocs and would result in a Go source file, <em>defaultsite.go</em> would like</p>
+
+<pre><code>    package defaultsite
+
+    var DefaultSite = map[string][]byte{
+        &quot;/index.html&quot;: []byte(&quot;... the contents of index.html would be here ...&quot;),
+        &quot;/css/site.css&quot;: []byte(&quot;... the contents of css/site.css would be here ...&quot;),
+    }
+</code></pre>
+
+<p>If a package name is not provided then the package name will be assumed to be the name of the file. The
+Asset option will also be assume to be the name of the file.</p>
+
+<h2>OPTIONS</h2>
+
+<ul>
+<li>-h, -help will display the help page</li>
+<li>-l, -license will display license info</li>
+<li>-v, -version will display version info</li>
+<li>-o, -output will set the name of the file output otherwise it defaults to package name in lowercase plus the &ldquo;.go&rdquo; extension</li>
+<li>-p, -package will set the name of the package if missing it defaults to a lower case version of map variable name</li>
+<li>-c, -comment will include a file as a comment in the head of the source file created (e.g. for your copyright statement)</li>
+</ul>
+
+</section>
+
+<footer>
+<span><h1><A href="http://caltech.edu">Caltech</a></h1></span>
+<span>&copy; 2017 <a href="https://www.library.caltech.edu/copyright">Caltech library</a></span>
+<address>1200 E California Blvd, Mail Code 1-32, Pasadena, CA 91125-3200</address> 
+<span>Phone: <a href="tel:+1-626-395-3405">(626)395-3405</a></span>
+<span><a href="mailto:library@caltech.edu">Email Us</a></span>
+<a class="cl-hide" href="sitemap.xml">Site Map</a>
+</footer>
+</body>
+</html>
