@@ -12,7 +12,7 @@ import (
 
 	// Caltech Library Package
 	"github.com/caltechlibrary/cli"
-	"github.com/caltechlibrary/pkgasset"
+	"github.com/caltechlibrary/pkgassets"
 )
 
 var (
@@ -92,7 +92,7 @@ func main() {
 	flag.Parse()
 	args := flag.Args()
 
-	cfg := cli.New(appName, "PKGASSET", fmt.Sprintf(pkgasset.LicenseText, appName, pkgasset.Version), pkgasset.Version)
+	cfg := cli.New(appName, "PKGASSETS", fmt.Sprintf(pkgassets.LicenseText, appName, pkgassets.Version), pkgassets.Version)
 	cfg.UsageText = fmt.Sprintf(usage, appName)
 	cfg.DescriptionText = fmt.Sprintf(description, appName)
 	cfg.ExampleText = fmt.Sprintf(examples, appName, appName)

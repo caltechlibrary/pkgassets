@@ -15,13 +15,13 @@
 <li><a href="index.html">README</a></li>
 <li><a href="license.html">LICENSE</a></li>
 <li><a href="install.html">INSTALL</a></li>
-<li><a href="https://github.com/caltechlibrary/pkgasset">Github</a></li>
+<li><a href="https://github.com/caltechlibrary/pkgassets">Github</a></li>
 </ul>
 
 </nav>
 
 <section>
-<h1>pkgasset</h1>
+<h1>pkgassets</h1>
 
 <p>Generate a Go source file with embedded file assets. This is useful where you want to embed web content,
 template source code and other assets that can be used for default behavior in a Go command line program
@@ -29,13 +29,13 @@ or service.</p>
 
 <h2>USAGE</h2>
 
-<pre><code>    pkgasset MAP_VAR_NAME NAME_OF_DIRECTORY_HOLDING_ASSETS
+<pre><code>    pkgassets MAP_VAR_NAME NAME_OF_DIRECTORY_HOLDING_ASSETS
 </code></pre>
 
 <p>This will result in a Go map[string][]byte structure holding the assets discovered by walking the directory
 tree provided. The map&rsquo;s key will represent a path (beginning with &ldquo;/&rdquo;) pointing at the asset ingested.</p>
 
-<pre><code class="language-shell">    pkgasset DefaultSite htdocs
+<pre><code class="language-shell">    pkgassets DefaultSite htdocs
 </code></pre>
 
 <p>Assuming that <em>htdocs</em> held</p>

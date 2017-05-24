@@ -1,5 +1,5 @@
 
-# pkgasset
+# pkgassets
 
 Generate a Go source file with embedded file assets. This is useful where you want to embed web content,
 template source code and other assets that can be used for default behavior in a Go command line program
@@ -8,14 +8,14 @@ or service.
 ## USAGE
 
 ```
-    pkgasset MAP_VAR_NAME NAME_OF_DIRECTORY_HOLDING_ASSETS
+    pkgassets MAP_VAR_NAME NAME_OF_DIRECTORY_HOLDING_ASSETS
 ```
 
 This will result in a Go map[string][]byte structure holding the assets discovered by walking the directory
 tree provided. The map's key will represent a path (beginning with "/") pointing at the asset ingested.
 
 ```shell
-    pkgasset DefaultSite htdocs
+    pkgassets DefaultSite htdocs
 ```
 
 Assuming that _htdocs_ held

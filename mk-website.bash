@@ -1,6 +1,6 @@
 #!/bin/bash
 
-TITLE="pkgasset: an asset packager and project setup tool"
+TITLE="pkgassets: an asset packager and project setup tool"
 
 START=$(pwd)
 cd "$(dirname "$0")"

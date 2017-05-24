@@ -3,5 +3,5 @@
 + [README](index.html)
 + [LICENSE](license.html)
 + [INSTALL](install.html)
-+ [Github](https://github.com/caltechlibrary/pkgasset)
++ [Github](https://github.com/caltechlibrary/pkgassets)
 

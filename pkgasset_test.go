@@ -1,4 +1,4 @@
-package pkgasset
+package pkgassets
 
 import (
 	"fmt"
