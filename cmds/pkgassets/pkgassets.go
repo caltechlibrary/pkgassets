@@ -165,7 +165,7 @@ func main() {
 			fmt.Fprintf(os.Stderr, "Can't read %q, %s", path, err)
 			return nil
 		}
-		if bSrc, err := ByteArrayToDecl(bArray); err == nil {
+		if bSrc, err := pkgassets.ByteArrayToDecl(bArray); err == nil {
 			fmt.Fprintf(fp, "\n    %q: %s,\n", fpath, bSrc)
 		} else {
 			fmt.Fprintf(os.Stderr, "Can't convert to byte array notation %s, %s\n", path, err)

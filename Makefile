@@ -2,24 +2,24 @@
 # Simple Makefile
 #
 
-PROJECT = pkgasset
+PROJECT = pkgassets
 
 VERSION = $(shell grep -m1 "Version = " $(PROJECT).go | cut -d\" -f 2)
 
 BRANCH = $(shell git branch | grep "* " | cut -d\   -f 2)
 
-build: bin/pkgasset
+build: bin/pkgassets
 
-bin/pkgasset: pkgasset.go cmds/pkgasset/pkgasset.go
-	go build -o bin/pkgasset cmds/pkgasset/pkgasset.go
+bin/pkgassets: pkgassets.go cmds/pkgassets/pkgassets.go
+	go build -o bin/pkgassets cmds/pkgassets/pkgassets.go
 
 lint:
-	golint pkgasset.go
-	golint cmds/pkgasset/pkgasset.go
+	golint pkgassets.go
+	golint cmds/pkgassets/pkgassets.go
 
 format:
-	gofmt -w pkgasset.go
-	gofmt -w cmds/pkgasset/pkgasset.go
+	gofmt -w pkgassets.go
+	gofmt -w cmds/pkgassets/pkgassets.go
 
 test:
 	go test
@@ -37,20 +37,20 @@ clean:
 	if [ -f $(PROJECT)-$(VERSION)-release.zip ]; then rm -f $(PROJECT)-$(VERSION)-release.zip; fi
 
 install:
-	env GOBIN=$(HOME)/bin go install cmds/pkgasset/pkgasset.go
+	env GOBIN=$(HOME)/bin go install cmds/pkgassets/pkgassets.go
 
 
 dist/linux-amd64:
-	env  GOOS=linux GOARCH=amd64 go build -o dist/linux-amd64/pkgasset cmds/pkgasset/pkgasset.go
+	env  GOOS=linux GOARCH=amd64 go build -o dist/linux-amd64/pkgassets cmds/pkgassets/pkgassets.go
 
 dist/windows-amd64:
-	env  GOOS=windows GOARCH=amd64 go build -o dist/windows-amd64/pkgasset.exe cmds/pkgasset/pkgasset.go
+	env  GOOS=windows GOARCH=amd64 go build -o dist/windows-amd64/pkgassets.exe cmds/pkgassets/pkgassets.go
 
 dist/macosx-amd64:
-	env  GOOS=darwin GOARCH=amd64 go build -o dist/macosx-amd64/pkgasset cmds/pkgasset/pkgasset.go
+	env  GOOS=darwin GOARCH=amd64 go build -o dist/macosx-amd64/pkgassets cmds/pkgassets/pkgassets.go
 
 dist/raspbian-arm7:
-	env  GOOS=linux GOARCH=arm GOARM=7 go build -o dist/raspbian-arm7/pkgasset cmds/pkgasset/pkgasset.go
+	env  GOOS=linux GOARCH=arm GOARM=7 go build -o dist/raspbian-arm7/pkgassets cmds/pkgassets/pkgassets.go
 
 release: dist/linux-amd64 dist/windows-amd64 dist/macosx-amd64 dist/raspbian-arm7
 	cp -v README.md dist/

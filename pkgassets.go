@@ -69,9 +69,11 @@ func (am AssetMap) AddFile(assertDir, fname string) error {
 
 // String returns a string version of an AssetMap
 func (am AssetMap) String() string {
+	return ""
 }
 
 // Bytes renders the structure as a byte array suitable for
 // passing to ioutil.WriteFile().
 func (am AssetMap) Bytes() []byte {
+	return []byte{}
 }
