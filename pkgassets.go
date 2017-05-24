@@ -45,13 +45,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 `
 )
 
-// AssetMap is a struct for rendering a collection of assets to a Golang Source Code
-type AssetMap struct {
-	packageName    string
-	openingComment []byte
-	assets         map[string][]byte
-}
-
 // ByteArrayToDecl converts the contents of the file pointed to by fname
 // into a Byte array declaration.
 func ByteArrayToDecl(src []byte) (string, error) {
@@ -62,18 +55,3 @@ func ByteArrayToDecl(src []byte) (string, error) {
 	return fmt.Sprintf("[]byte{%s}", strings.Join(srcBody, ",")), nil
 }
 
-// AddFile adds a file to the asset map.
-func (am AssetMap) AddFile(assertDir, fname string) error {
-	return fmt.Errorf("AddFile() not implemented\n")
-}
-
-// String returns a string version of an AssetMap
-func (am AssetMap) String() string {
-	return ""
-}
-
-// Bytes renders the structure as a byte array suitable for
-// passing to ioutil.WriteFile().
-func (am AssetMap) Bytes() []byte {
-	return []byte{}
-}
