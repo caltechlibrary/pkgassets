@@ -34,29 +34,42 @@ save:
 clean:
 	if [ -d bin ]; then rm -fR bin; fi
 	if [ -d dist ]; then rm -fR dist; fi
-	if [ -f $(PROJECT)-$(VERSION)-release.zip ]; then rm -f $(PROJECT)-$(VERSION)-release.zip; fi
 
 install:
 	env GOBIN=$(HOME)/bin go install cmds/pkgassets/pkgassets.go
 
 
 dist/linux-amd64:
-	env  GOOS=linux GOARCH=amd64 go build -o dist/linux-amd64/pkgassets cmds/pkgassets/pkgassets.go
+	mkdir -p dist/bin
+	env  GOOS=linux GOARCH=amd64 go build -o dist/bin/pkgassets cmds/pkgassets/pkgassets.go
+	cd dist && zip -r $(PROJECT)-$(VERSION)-linux-amd64.zip README.md LICENSE INSTALL.md bin/*
+	rm -fR dist/bin
 
 dist/windows-amd64:
-	env  GOOS=windows GOARCH=amd64 go build -o dist/windows-amd64/pkgassets.exe cmds/pkgassets/pkgassets.go
+	mkdir -p dist/bin
+	env  GOOS=windows GOARCH=amd64 go build -o dist/bin/pkgassets.exe cmds/pkgassets/pkgassets.go
+	cd dist && zip -r $(PROJECT)-$(VERSION)-windows-amd64.zip README.md LICENSE INSTALL.md bin/*
+	rm -fR dist/bin
 
 dist/macosx-amd64:
-	env  GOOS=darwin GOARCH=amd64 go build -o dist/macosx-amd64/pkgassets cmds/pkgassets/pkgassets.go
+	mkdir -p dist/bin
+	env  GOOS=darwin GOARCH=amd64 go build -o dist/bin/pkgassets cmds/pkgassets/pkgassets.go
+	cd dist && zip -r $(PROJECT)-$(VERSION)-macosx-amd64.zip README.md LICENSE INSTALL.md bin/*
+	rm -fR dist/bin
 
 dist/raspbian-arm7:
-	env  GOOS=linux GOARCH=arm GOARM=7 go build -o dist/raspbian-arm7/pkgassets cmds/pkgassets/pkgassets.go
+	mkdir -p dist/bin
+	env  GOOS=linux GOARCH=arm GOARM=7 go build -o dist/bin/pkgassets cmds/pkgassets/pkgassets.go
+	cd dist && zip -r $(PROJECT)-$(VERSION)-raspbian-amd7.zip README.md LICENSE INSTALL.md bin/*
+	rm -fR dist/bin
 
-release: dist/linux-amd64 dist/windows-amd64 dist/macosx-amd64 dist/raspbian-arm7
+distribute_docs:
+	mkdir -p dist
 	cp -v README.md dist/
 	cp -v LICENSE dist/
 	cp -v INSTALL.md dist/
-	zip -r $(PROJECT)-$(VERSION)-release.zip dist/*
+
+release: distribute_docs dist/linux-amd64 dist/windows-amd64 dist/macosx-amd64 dist/raspbian-arm7
 
 website:
 	./mk-website.bash
