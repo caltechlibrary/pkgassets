@@ -19,12 +19,13 @@ For all the released version go to the project page on Github and click latest r
 >    https://github.com/caltechlibrary/pkgassets/releases/latest
 
 
-| Platform    | Zip Filename                             | Folder for executables |
-|-------------|------------------------------------------|------------------------|
-| Windows     | pkgassets-VERSION_NUMBER-windows-amd64.zip | windows_amd64          |
-| Mac OS X    | pkgassets-VERSION_NUMBER-macosx-amd64.zip  | macosx_amd64           |
-| Linux/Intel | pkgassets-VERSION_NUMBER-linux-amd64.zip   | linux_amd64            |
-| Raspbery Pi | pkgassets-VERSION_NUMBER-raspbian-arm7.zip | raspbian_arm7          |
+| Platform    | Zip Filename                               |
+|-------------|--------------------------------------------|
+| Windows     | pkgassets-VERSION_NUMBER-windows-amd64.zip |
+| Mac OS X    | pkgassets-VERSION_NUMBER-macosx-amd64.zip  |
+| Linux/Intel | pkgassets-VERSION_NUMBER-linux-amd64.zip   |
+| Raspbery Pi | pkgassets-VERSION_NUMBER-raspbian-arm7.zip |
+
 
 ## The basic recipe
 
