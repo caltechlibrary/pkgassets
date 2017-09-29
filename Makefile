@@ -36,7 +36,7 @@ clean:
 	if [ -d dist ]; then rm -fR dist; fi
 
 install:
-	env GOBIN=$(HOME)/bin go install cmds/pkgassets/pkgassets.go
+	env GOBIN=$(GOPATH)/bin go install cmds/pkgassets/pkgassets.go
 
 
 dist/linux-amd64:
