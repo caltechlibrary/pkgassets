@@ -59,10 +59,11 @@ name will be the name of the package plus the ".go" extension.
 `
 
 	// Standard Options
-	showHelp    bool
-	showLicense bool
-	showVersion bool
-	outFName    string
+	showHelp     bool
+	showLicense  bool
+	showVersion  bool
+	showExamples bool
+	outFName     string
 
 	// App Options
 	packageName  string
@@ -70,14 +71,18 @@ name will be the name of the package plus the ".go" extension.
 )
 
 func init() {
+	// Standard Options
 	flag.BoolVar(&showHelp, "h", false, "display help")
 	flag.BoolVar(&showHelp, "help", false, "display help")
 	flag.BoolVar(&showLicense, "l", false, "display license")
 	flag.BoolVar(&showLicense, "license", false, "display license")
 	flag.BoolVar(&showVersion, "v", false, "display version")
 	flag.BoolVar(&showVersion, "version", false, "display version")
+	flag.BoolVar(&showExamples, "example", false, "display example(s)")
 	flag.StringVar(&outFName, "o", "", "output filename")
 	flag.StringVar(&outFName, "output", "", "output filename")
+
+	// App Options
 	flag.StringVar(&packageName, "p", "", "package name, if missing defauls to lowercase of variable name")
 	flag.StringVar(&packageName, "package", "", "package name, if missing defauls to lowercase of variable name")
 	flag.StringVar(&commentFName, "c", "", "comment file to be included")
@@ -92,16 +97,32 @@ func main() {
 	flag.Parse()
 	args := flag.Args()
 
-	cfg := cli.New(appName, "PKGASSETS", fmt.Sprintf(pkgassets.LicenseText, appName, pkgassets.Version), pkgassets.Version)
+	cfg := cli.New(appName, "PKGASSETS", pkgassets.Version)
+	cfg.LicenseText = fmt.Sprintf(pkgassets.LicenseText, appName, pkgassets.Version)
 	cfg.UsageText = fmt.Sprintf(usage, appName)
 	cfg.DescriptionText = fmt.Sprintf(description, appName)
+	cfg.OptionText = "OPTIONS"
 	cfg.ExampleText = fmt.Sprintf(examples, appName, appName)
 
 	// Process flags and update the environment as needed.
 	if showHelp == true {
-		fmt.Println(cfg.Usage())
+		if len(args) > 0 {
+			fmt.Println(cfg.Help(args...))
+		} else {
+			fmt.Println(cfg.Usage())
+		}
 		os.Exit(0)
 	}
+
+	if showExamples == true {
+		if len(args) > 0 {
+			fmt.Println(cfg.Example(args...))
+		} else {
+			fmt.Println(cfg.ExampleText)
+		}
+		os.Exit(0)
+	}
+
 	if showLicense == true {
 		fmt.Println(cfg.License())
 		os.Exit(0)
