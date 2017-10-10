@@ -25,7 +25,7 @@ import (
 )
 
 var (
-	Version = "v0.0.1"
+	Version = "v0.0.2"
 
 	LicenseText = `
 %s %s
@@ -54,4 +54,3 @@ func ByteArrayToDecl(src []byte) (string, error) {
 	}
 	return fmt.Sprintf("[]byte{%s}", strings.Join(srcBody, ",")), nil
 }
-
