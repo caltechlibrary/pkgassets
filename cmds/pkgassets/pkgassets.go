@@ -132,7 +132,7 @@ func main() {
 		os.Exit(0)
 	}
 
-	if len(args) != 2 {
+	if len(args) < 2 {
 		fmt.Fprintf(os.Stderr, cfg.Usage())
 		fmt.Fprintf(os.Stderr, "\n")
 		if len(args) < 1 {
@@ -143,61 +143,74 @@ func main() {
 		}
 		os.Exit(1)
 	}
-	mapVName, assetDir := args[0], args[1]
-
-	if packageName == "" {
-		packageName = strings.ToLower(mapVName)
-	}
-	if outFName == "" {
-		outFName = strings.ToLower(packageName) + ".go"
-	}
-	commentSrc := []byte{}
-	if commentFName != "" {
-		commentSrc, err = ioutil.ReadFile(commentFName)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Can't read %s, %s\n", commentFName, err)
-			os.Exit(1)
-		}
+	if (len(args) % 2) != 0 {
+		fmt.Fprintf(os.Stderr, "Missing variable/assets directory names must be paired\n")
+		fmt.Fprintf(os.Stderr, "Paramters provided, %q\n", strings.Join(args, ", "))
+		os.Exit(1)
 	}
 
 	// Write out the Go source file.
-	fp, err := os.Create(outFName)
+	fp, err := cli.Create(outFName, os.Stdout)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Can't write %s, %s\n", outFName, err)
 		os.Exit(1)
 	}
 	defer fp.Close()
 
-	if len(commentSrc) > 0 {
-		fmt.Fprintf(fp, "//\n// %s\n//\n", bytes.Replace(commentSrc, []byte("\n"), []byte("\n// "), -1))
-	}
-	fmt.Fprintf(fp, "package %s\n\n", packageName)
-	fmt.Fprintf(fp, `var (
-    // %s is a map to asset files associated with %s package
+	// For each pair of mapVName/assetDir add a map to outFName
+	for i := 0; (i + 1) < len(args); i += 2 {
+		mapVName, assetDir := args[i], args[i+1]
+
+		if packageName == "" {
+			packageName = strings.ToLower(mapVName)
+		}
+		if outFName == "" {
+			outFName = strings.ToLower(packageName) + ".go"
+		}
+		commentSrc := []byte{}
+		if commentFName != "" {
+			commentSrc, err = ioutil.ReadFile(commentFName)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Can't read %s, %s\n", commentFName, err)
+				os.Exit(1)
+			}
+		}
+
+		if len(commentSrc) > 0 {
+			fmt.Fprintf(fp, "\n//\n// %s\n//\n", bytes.Replace(commentSrc, []byte("\n"), []byte("\n// "), -1))
+		}
+		if i == 0 {
+			fmt.Fprintf(fp, "package %s\n\nvar (\n\n", packageName)
+		}
+		fmt.Fprintf(fp, `// %s is a map to asset files associated with %s package
     %s = map[string][]byte{`, mapVName, packageName, mapVName)
-	// Walk the asset directory structure and for each file found at it to the map...
-	if err = filepath.Walk(assetDir, func(path string, info os.FileInfo, err error) error {
-		if info.IsDir() {
+		// Walk the asset directory structure and for each file found at it to the map...
+		if err = filepath.Walk(assetDir, func(path string, info os.FileInfo, err error) error {
+			if info.IsDir() {
+				return nil
+			}
+			fpath := strings.TrimPrefix(path, assetDir)
+			bArray, err := ioutil.ReadFile(path)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Can't read %q, %s", path, err)
+				return nil
+			}
+			if bSrc, err := pkgassets.ByteArrayToDecl(bArray); err == nil {
+				fmt.Fprintf(fp, "\n    %q: %s,\n", fpath, bSrc)
+			} else {
+				fmt.Fprintf(os.Stderr, "Can't convert to byte array notation %s, %s\n", path, err)
+			}
 			return nil
+		}); err != nil {
+			fmt.Fprintf(os.Stderr, "Can't walk path %q, %s\n", assetDir, err)
 		}
-		fpath := strings.TrimPrefix(path, assetDir)
-		bArray, err := ioutil.ReadFile(path)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Can't read %q, %s", path, err)
-			return nil
-		}
-		if bSrc, err := pkgassets.ByteArrayToDecl(bArray); err == nil {
-			fmt.Fprintf(fp, "\n    %q: %s,\n", fpath, bSrc)
-		} else {
-			fmt.Fprintf(os.Stderr, "Can't convert to byte array notation %s, %s\n", path, err)
-		}
-		return nil
-	}); err != nil {
-		fmt.Fprintf(os.Stderr, "Can't walk path %q, %s\n", assetDir, err)
+		fmt.Fprintf(fp, `
+	}
+`)
 	}
 	fmt.Fprintf(fp, `
-	}
 )
+
 `)
 
 }
