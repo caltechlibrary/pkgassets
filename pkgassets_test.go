@@ -6,7 +6,7 @@ import (
 )
 
 func TestFile(t *testing.T) {
-	txt, err := ioutil.ReadFile("testdata/helloword.md")
+	txt, err := ioutil.ReadFile("testdata/helloworld.md")
 	if err != nil {
 		t.Errorf("%s", err)
 		t.FailNow()
@@ -16,4 +16,3 @@ func TestFile(t *testing.T) {
 		t.FailNow()
 	}
 }
-
