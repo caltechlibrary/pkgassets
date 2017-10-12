@@ -27,4 +27,6 @@ path requested by your server
 ```
 
 Notice the _pkgassets_ by default strips the initial directory name from the path of the value stored. This is
-so the path matches easily what is passed in via `req.URL.Path`.
+so the path matches easily what is passed in via `req.URL.Path`. Additionally we're not restricting the harvest
+to a specific file type like we did in the help example.
+
