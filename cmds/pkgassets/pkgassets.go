@@ -16,48 +16,6 @@ import (
 )
 
 var (
-	usage = `USAGE: %s PACKAGE_NAME DIR_HOLDING_ASSETS`
-
-	description = `
-SYNOPSIS
-
-%s generates a Go source file hosting a map of path and byte array
-of file content harvested from directory holding the assets. The
-path key starts with a slash and does not include the hosting directory
-name (e.g. htdocs/index.html would become /index.html if htdocs was
-used to harvest assets).
-`
-
-	examples = `
-EXAMPLE
-
-  %s MAP_VARAIBLE_NAME NAME_OF_DIRECTORY_HOLDING_ASSETS
-
-This will result in a Go of type map[string][]byte holding the assets discovered by walking the directory
-tree provided. The map's key will represent a path (beginning with "/") pointing at the asset ingested.
-
-  %s DefaultSite htdocs
-
-Assuming that _htdocs_ held
-
-+ index.html
-+ css/site.css
-
-In this example the htdocs directory will be crawled and all the files found harvested as a an asset. The
-path in the map will not include htdocs and would result in a Go source file like
-
-    package defaultsite
-
-    var DefaultSite = map[string][]byte{
-        "/index.html": []byte{}, // ... the contents of index.html would be here ...
-        "/css/site.css": []byte{}, // ... the contents of css/site.css would be here ...
-    }
-
-If a package name is not provided then the package name will a lowercase name of the map variable name (e.g. 
-"var DefaultSite" becomes "package defaultsite"). Likewise if a output name is not provided then the file
-name will be the name of the package plus the ".go" extension.
-`
-
 	// Standard Options
 	showHelp     bool
 	showLicense  bool
@@ -68,6 +26,8 @@ name will be the name of the package plus the ".go" extension.
 	// App Options
 	packageName  string
 	commentFName string
+	stripPrefix  string
+	stripSuffix  string
 )
 
 func init() {
@@ -87,6 +47,8 @@ func init() {
 	flag.StringVar(&packageName, "package", "", "package name, if missing defauls to lowercase of variable name")
 	flag.StringVar(&commentFName, "c", "", "comment file to be included")
 	flag.StringVar(&commentFName, "comment", "", "comment file to be included")
+	flag.StringVar(&stripPrefix, "strip-prefix", "", "strip the prefix from the map key")
+	flag.StringVar(&stripSuffix, "strip-suffix", "", "strip the suffix from the map key")
 }
 
 func main() {
@@ -99,10 +61,18 @@ func main() {
 
 	cfg := cli.New(appName, "PKGASSETS", pkgassets.Version)
 	cfg.LicenseText = fmt.Sprintf(pkgassets.LicenseText, appName, pkgassets.Version)
-	cfg.UsageText = fmt.Sprintf(usage, appName)
-	cfg.DescriptionText = fmt.Sprintf(description, appName)
-	cfg.OptionText = "OPTIONS"
-	cfg.ExampleText = fmt.Sprintf(examples, appName, appName)
+	cfg.UsageText = fmt.Sprintf("%s", Help["usage"])
+	cfg.DescriptionText = fmt.Sprintf("%s", Help["description"])
+	cfg.OptionText = "## OPTIONS \n\n"
+	cfg.ExampleText = fmt.Sprintf("%s", Help["example"])
+
+	// map in our help and examples
+	for k, v := range Help {
+		cfg.AddHelp(k, fmt.Sprintf("%s", v))
+	}
+	for k, v := range Examples {
+		cfg.AddExample(k, fmt.Sprintf("%s", v))
+	}
 
 	// Process flags and update the environment as needed.
 	if showHelp == true {
@@ -115,11 +85,14 @@ func main() {
 	}
 
 	if showExamples == true {
-		if len(args) > 0 {
-			fmt.Println(cfg.Example(args...))
-		} else {
-			fmt.Println(cfg.ExampleText)
-		}
+		/*
+			if len(args) > 0 {
+				fmt.Println(cfg.Example(args...))
+			} else {
+				fmt.Println(cfg.ExampleText)
+			}
+		*/
+		fmt.Println(cfg.Example(args...))
 		os.Exit(0)
 	}
 
@@ -182,7 +155,7 @@ func main() {
 		if i == 0 {
 			fmt.Fprintf(fp, "package %s\n\nvar (\n\n", packageName)
 		}
-		fmt.Fprintf(fp, `// %s is a map to asset files associated with %s package
+		fmt.Fprintf(fp, `    // %s is a map to asset files associated with %s package
     %s = map[string][]byte{`, mapVName, packageName, mapVName)
 		// Walk the asset directory structure and for each file found at it to the map...
 		if err = filepath.Walk(assetDir, func(path string, info os.FileInfo, err error) error {
@@ -190,6 +163,12 @@ func main() {
 				return nil
 			}
 			fpath := strings.TrimPrefix(path, assetDir)
+			if stripPrefix != "" {
+				fpath = strings.TrimPrefix(fpath, stripPrefix)
+			}
+			if stripSuffix != "" {
+				fpath = strings.TrimSuffix(fpath, stripSuffix)
+			}
 			bArray, err := ioutil.ReadFile(path)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "Can't read %q, %s", path, err)
