@@ -28,6 +28,7 @@ var (
 	commentFName string
 	stripPrefix  string
 	stripSuffix  string
+	requiredExt  string
 )
 
 func init() {
@@ -49,6 +50,7 @@ func init() {
 	flag.StringVar(&commentFName, "comment", "", "comment file to be included")
 	flag.StringVar(&stripPrefix, "strip-prefix", "", "strip the prefix from the map key")
 	flag.StringVar(&stripSuffix, "strip-suffix", "", "strip the suffix from the map key")
+	flag.StringVar(&requiredExt, "ext", "", "Only include files with matching extension")
 }
 
 func main() {
@@ -155,26 +157,30 @@ func main() {
 		fmt.Fprintf(fp, `    // %s is a map to asset files associated with %s package
     %s = map[string][]byte{`, mapVName, packageName, mapVName)
 		// Walk the asset directory structure and for each file found at it to the map...
-		if err = filepath.Walk(assetDir, func(path string, info os.FileInfo, err error) error {
+		if err = filepath.Walk(assetDir, func(walkingPath string, info os.FileInfo, err error) error {
 			if info.IsDir() {
 				return nil
 			}
-			fpath := strings.TrimPrefix(path, assetDir)
+
+			fPath := strings.TrimPrefix(walkingPath, assetDir)
+			fExt := path.Ext(fPath)
 			if stripPrefix != "" {
-				fpath = strings.TrimPrefix(fpath, stripPrefix)
+				fPath = strings.TrimPrefix(fPath, stripPrefix)
 			}
 			if stripSuffix != "" {
-				fpath = strings.TrimSuffix(fpath, stripSuffix)
+				fPath = strings.TrimSuffix(fPath, stripSuffix)
 			}
-			bArray, err := ioutil.ReadFile(path)
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "Can't read %q, %s", path, err)
-				return nil
-			}
-			if bSrc, err := pkgassets.ByteArrayToDecl(bArray); err == nil {
-				fmt.Fprintf(fp, "\n    %q: %s,\n", fpath, bSrc)
-			} else {
-				fmt.Fprintf(os.Stderr, "Can't convert to byte array notation %s, %s\n", path, err)
+			if requiredExt == "" || requiredExt == fExt {
+				bArray, err := ioutil.ReadFile(walkingPath)
+				if err != nil {
+					fmt.Fprintf(os.Stderr, "Can't read %q, %s", walkingPath, err)
+					return nil
+				}
+				if bSrc, err := pkgassets.ByteArrayToDecl(bArray); err == nil {
+					fmt.Fprintf(fp, "\n    %q: %s,\n", fPath, bSrc)
+				} else {
+					fmt.Fprintf(os.Stderr, "Can't convert to byte array notation %s, %s\n", walkingPath, err)
+				}
 			}
 			return nil
 		}); err != nil {
