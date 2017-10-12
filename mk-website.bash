@@ -41,5 +41,9 @@ echo "Generating install.html"
 MakePage nav.md INSTALL.md install.html
 echo "Generating license.html"
 MakePage nav.md "markdown:$(cat LICENSE)" license.html
+echo "Generating examples/help.html"
+MakePage nav.md "examples/help.md" "examples/help.html"
+echo "Generating examples/htdocs.html"
+MakePage nav.md "examples/htdocs.md" "examples/htdocs.html"
 
 cd "$START"

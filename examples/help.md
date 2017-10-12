@@ -16,7 +16,7 @@ In this example the *cmd/helloworld/helloworld.go* would contains the "main" pac
 you're going to build.  The documentation for _helloworld_ is in a folder called docs.
 
 ```
-    pkgassets -o cmd/helloworld/assets.go -p main -strip-prefix="/" Help docs
+    pkgassets -o cmd/helloworld/assets.go -p main -strip-prefix="/" -strip-suffix=".md" Help docs
 ```
 
 This will create the _assets.go_ file which will contain a map[string][]byte of your help docs.
