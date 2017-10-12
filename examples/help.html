@@ -23,12 +23,12 @@
 <section>
 <h1>Creating help docs</h1>
 
-<p>Here is the basic recipe for turning text or markdown documents into map[string][]byte object
+<p>Here is the basic recipe for turning text or markdown documents into <code>map[string][]byte</code> object
 that can drive your help topics.</p>
 
 <ol>
 <li>mkdir a docs directory</li>
-<li>create markdown (<em>.md) or text (</em>.txt) documents in that directory for your help topics
+<li>create markdown (files ending in &ldquo;.md&rdquo;) documents in that directory for your help topics
 
 <ul>
 <li>filename without extension will become keyword used with the help command</li>
@@ -42,14 +42,17 @@ that can drive your help topics.</p>
 <p>In this example the <em>cmd/helloworld/helloworld.go</em> would contains the &ldquo;main&rdquo; package for a cli program
 you&rsquo;re going to build.  The documentation for <em>helloworld</em> is in a folder called docs.</p>
 
-<pre><code>    pkgassets -o cmd/helloworld/assets.go -p main -strip-prefix=&quot;/&quot; -strip-suffix=&quot;.md&quot; Help docs
+<pre><code>    pkgassets -o cmd/helloworld/assets.go -p main -ext=&quot;.md&quot; -strip-prefix=&quot;/&quot; -strip-suffix=&quot;.md&quot; Help docs
 </code></pre>
 
 <p>This will create the <em>assets.go</em> file which will contain a map[string][]byte of your help docs.
 You can then compile <em>helloworld</em> normaly with <em>go</em>. Note the pkgassets strips the &ldquo;docs&rdquo; from
 the value passed in as the key bit not the &ldquo;/&rdquo;. This is to support using <code>map[string][]byte</code>
 as holders of web content. We use the additional option &ldquo;-strip-prefix&rdquo; to remove the leading
-slash leaving the renaming filename as the key in for the mapped help page.</p>
+slash leaving the renaming filename as the key in for the mapped help page. Likewise if we have
+other documents in the <em>docs</em> directory tree we can restrict the help documents harvested to
+a single file type by file extension (e.g. -ext=&ldquo;.md&rdquo; restricts to markdown files using the &ldquo;.md&rdquo;
+file extension).</p>
 
 </section>
 
