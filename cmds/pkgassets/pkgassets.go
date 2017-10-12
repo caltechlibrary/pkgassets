@@ -85,14 +85,11 @@ func main() {
 	}
 
 	if showExamples == true {
-		/*
-			if len(args) > 0 {
-				fmt.Println(cfg.Example(args...))
-			} else {
-				fmt.Println(cfg.ExampleText)
-			}
-		*/
-		fmt.Println(cfg.Example(args...))
+		if len(args) > 0 {
+			fmt.Println(cfg.Example(args...))
+		} else {
+			fmt.Printf("\n%s", cfg.Example())
+		}
 		os.Exit(0)
 	}
 

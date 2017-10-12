@@ -8,10 +8,17 @@ VERSION = $(shell grep -m1 "Version = " $(PROJECT).go | cut -d\" -f 2)
 
 BRANCH = $(shell git branch | grep "* " | cut -d\   -f 2)
 
-build: bin/pkgassets
-
-bin/pkgassets: pkgassets.go cmds/pkgassets/pkgassets.go cmds/pkgassets/help.go cmds/pkgassets/examples.go
+build: 
+	echo "Bookstrapping bin/pkgassets"
+	if [ ! -f cmds/pkgassets/help.go ]; then echo 'package main;var Help map[string][]byte' > cmds/pkgassets/help.go;fi
+	if [ ! -f cmds/pkgassets/examples.go ]; then echo 'package main;var Examples map[string][]byte' > cmds/pkgassets/examples.go;fi
 	go build -o bin/pkgassets cmds/pkgassets/*.go
+	echo "Bootstrap completed"
+	if [ -f bin/pkgassets ]; then bin/pkgassets -o cmds/pkgassets/help.go -p main -strip-prefix="/" -strip-suffix=".md" Help docs; fi
+	if [ -f bin/pkgassets.exe ]; then bin/pkgassets.exe -o cmds/pkgassets/help.go -p main -strip-prefix="/" -strip-suffix=".md" Help docs; fi
+	if [ -f bin/pkgassets ]; then bin/pkgassets -o cmds/pkgassets/examples.go -p main -strip-prefix="/" -strip-suffix=".md" Examples examples; fi
+	if [ -f bin/pkgassets.exe ]; then bin/pkgassets.exe -o cmds/pkgassets/examples.go -p main -strip-prefix="/" -strip-suffix=".md" Examples examples; fi
+	go build -o bin/pkgassets cmds/pkgassets/pkgassets.go cmds/pkgassets/help.go cmds/pkgassets/examples.go
 
 lint:
 	golint pkgassets.go
@@ -32,13 +39,15 @@ save:
 	git push origin $(BRANCH)
 
 clean:
-	if [ -f cmds/pkgassets/help.go ]; then rm cmds/pkgassets/help.go; fi
-	if [ -f cmds/pkgassets/examples.go ]; then rm cmds/pkgassets/examples.go; fi
+	if [ -f bin/pkgassets ] && [ -f cmds/pkgassets/help.go ]; then rm cmds/pkgassets/help.go; fi
+	if [ -f bin/pkgassets.exe ] && [ -f cmds/pkgassets/help.go ]; then rm cmds/pkgassets/help.go; fi
+	if [ -f bin/pkgassets ] && [ -f cmds/pkgassets/examples.go ]; then rm cmds/pkgassets/examples.go; fi
+	if [ -f bin/pkgassets.exe ] && [ -f cmds/pkgassets/examples.go ]; then rm cmds/pkgassets/examples.go; fi
 	if [ -d bin ]; then rm -fR bin; fi
 	if [ -d dist ]; then rm -fR dist; fi
 
 install:
-	env GOBIN=$(GOPATH)/bin go install cmds/pkgassets/*.go
+	env GOBIN=$(GOPATH)/bin go install cmds/pkgassets/pkgassets.go cmds/pkgassets/help.go cmds/pkgassets/examples.go
 
 
 dist/linux-amd64:
