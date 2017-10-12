@@ -24,6 +24,7 @@ key can be modified based on _pkgassets_'s command line options.
 	-c	comment file to be included
 	-comment	comment file to be included
 	-example	display example(s)
+	-ext	Only include files with matching extension
 	-h	display help
 	-help	display help
 	-l	display license
@@ -72,7 +73,6 @@ If a package name is not provided then the package name will a lowercase name of
 "var DefaultSite" becomes "package defaultsite"). Likewise if a output name is not provided then the file
 name will be the name of the package plus the ".go" extension.
 
+Related examples: [help](examples/help.html), [htdocs](examples/htdocs.html).
 
-Related examples: [help docs](examples/help.html), [htdocs](examples/htdocs.html).
-
-pkgassets v0.0.3
+pkgassets v0.0.4

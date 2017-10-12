@@ -14,10 +14,10 @@ build:
 	if [ ! -f cmds/pkgassets/examples.go ]; then echo 'package main;var Examples map[string][]byte' > cmds/pkgassets/examples.go;fi
 	go build -o bin/pkgassets cmds/pkgassets/*.go
 	echo "Bootstrap completed"
-	if [ -f bin/pkgassets ]; then bin/pkgassets -o cmds/pkgassets/help.go -p main -strip-prefix="/" -strip-suffix=".md" Help docs; fi
-	if [ -f bin/pkgassets.exe ]; then bin/pkgassets.exe -o cmds/pkgassets/help.go -p main -strip-prefix="/" -strip-suffix=".md" Help docs; fi
-	if [ -f bin/pkgassets ]; then bin/pkgassets -o cmds/pkgassets/examples.go -p main -strip-prefix="/" -strip-suffix=".md" Examples examples; fi
-	if [ -f bin/pkgassets.exe ]; then bin/pkgassets.exe -o cmds/pkgassets/examples.go -p main -strip-prefix="/" -strip-suffix=".md" Examples examples; fi
+	if [ -f bin/pkgassets ]; then bin/pkgassets -o cmds/pkgassets/help.go -p main -ext=".md" -strip-prefix="/" -strip-suffix=".md" Help docs; fi
+	if [ -f bin/pkgassets.exe ]; then bin/pkgassets.exe -o cmds/pkgassets/help.go -p main -ext=".md" -strip-prefix="/" -strip-suffix=".md" Help docs; fi
+	if [ -f bin/pkgassets ]; then bin/pkgassets -o cmds/pkgassets/examples.go -p main -ext=".md" -strip-prefix="/" -strip-suffix=".md" Examples examples; fi
+	if [ -f bin/pkgassets.exe ]; then bin/pkgassets.exe -o cmds/pkgassets/examples.go -p main -ext=".md" -strip-prefix="/" -strip-suffix=".md" Examples examples; fi
 	go build -o bin/pkgassets cmds/pkgassets/pkgassets.go cmds/pkgassets/help.go cmds/pkgassets/examples.go
 
 lint:
@@ -52,25 +52,25 @@ install:
 
 dist/linux-amd64:
 	mkdir -p dist/bin
-	env  GOOS=linux GOARCH=amd64 go build -o dist/bin/pkgassets cmds/pkgassets/*.go
+	env  GOOS=linux GOARCH=amd64 go build -o dist/bin/pkgassets cmds/pkgassets/pkgassets.go cmds/pkgassets/help.go cmds/pkgassets/examples.go
 	cd dist && zip -r $(PROJECT)-$(VERSION)-linux-amd64.zip README.md LICENSE INSTALL.md bin/*
 	rm -fR dist/bin
 
 dist/windows-amd64:
 	mkdir -p dist/bin
-	env  GOOS=windows GOARCH=amd64 go build -o dist/bin/pkgassets.exe cmds/pkgassets/*.go
+	env  GOOS=windows GOARCH=amd64 go build -o dist/bin/pkgassets.exe cmds/pkgassets/pkgassets.go cmds/pkgassets/help.go cmds/pkgassets/examples.go
 	cd dist && zip -r $(PROJECT)-$(VERSION)-windows-amd64.zip README.md LICENSE INSTALL.md bin/*
 	rm -fR dist/bin
 
 dist/macosx-amd64:
 	mkdir -p dist/bin
-	env  GOOS=darwin GOARCH=amd64 go build -o dist/bin/pkgassets cmds/pkgassets/*.go
+	env  GOOS=darwin GOARCH=amd64 go build -o dist/bin/pkgassets cmds/pkgassets/pkgassets.go cmds/pkgassets/help.go cmds/pkgassets/examples.go
 	cd dist && zip -r $(PROJECT)-$(VERSION)-macosx-amd64.zip README.md LICENSE INSTALL.md bin/*
 	rm -fR dist/bin
 
 dist/raspbian-arm7:
 	mkdir -p dist/bin
-	env  GOOS=linux GOARCH=arm GOARM=7 go build -o dist/bin/pkgassets cmds/pkgassets/*.go
+	env  GOOS=linux GOARCH=arm GOARM=7 go build -o dist/bin/pkgassets cmds/pkgassets/pkgassets.go cmds/pkgassets/help.go cmds/pkgassets/examples.go
 	cd dist && zip -r $(PROJECT)-$(VERSION)-raspbian-amd7.zip README.md LICENSE INSTALL.md bin/*
 	rm -fR dist/bin
 
