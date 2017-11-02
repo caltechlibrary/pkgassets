@@ -47,7 +47,7 @@ clean:
 	if [ -d bin ]; then rm -fR bin; fi
 	if [ -d dist ]; then rm -fR dist; fi
 
-install:
+install: build
 	env GOBIN=$(GOPATH)/bin go install cmds/pkgassets/pkgassets.go cmds/pkgassets/help.go cmds/pkgassets/examples.go
 
 
