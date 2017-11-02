@@ -52,5 +52,5 @@ func ByteArrayToDecl(src []byte) (string, error) {
 	for _, b := range src {
 		srcBody = append(srcBody, fmt.Sprintf("0x%x", b))
 	}
-	return fmt.Sprintf("[]byte{%s}", strings.Join(srcBody, ",")), nil
+	return fmt.Sprintf("{%s}", strings.Join(srcBody, ",")), nil
 }
