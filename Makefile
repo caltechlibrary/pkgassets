@@ -12,12 +12,13 @@ build:
 	echo "Bookstrapping bin/pkgassets"
 	if [ ! -f cmds/pkgassets/help.go ]; then echo 'package main;var Help map[string][]byte' > cmds/pkgassets/help.go;fi
 	if [ ! -f cmds/pkgassets/examples.go ]; then echo 'package main;var Examples map[string][]byte' > cmds/pkgassets/examples.go;fi
-	go build -o bin/pkgassets cmds/pkgassets/*.go
+	go build -o bin/pkgassets cmds/pkgassets/pkgassets.go cmds/pkgassets/help.go cmds/pkgassets/examples.go
 	echo "Bootstrap completed"
 	if [ -f bin/pkgassets ]; then bin/pkgassets -o cmds/pkgassets/help.go -p main -ext=".md" -strip-prefix="/" -strip-suffix=".md" Help docs; fi
 	if [ -f bin/pkgassets.exe ]; then bin/pkgassets.exe -o cmds/pkgassets/help.go -p main -ext=".md" -strip-prefix="/" -strip-suffix=".md" Help docs; fi
 	if [ -f bin/pkgassets ]; then bin/pkgassets -o cmds/pkgassets/examples.go -p main -ext=".md" -strip-prefix="/" -strip-suffix=".md" Examples examples; fi
 	if [ -f bin/pkgassets.exe ]; then bin/pkgassets.exe -o cmds/pkgassets/examples.go -p main -ext=".md" -strip-prefix="/" -strip-suffix=".md" Examples examples; fi
+	git add cmds/pkgassets/help.go cmds/pkgassets/examples.go
 	go build -o bin/pkgassets cmds/pkgassets/pkgassets.go cmds/pkgassets/help.go cmds/pkgassets/examples.go
 
 lint:
