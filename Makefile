@@ -80,6 +80,7 @@ distribute_docs:
 	cp -v README.md dist/
 	cp -v LICENSE dist/
 	cp -v INSTALL.md dist/
+	./package-versions.bash > dist/package-versions.txt
 
 release: distribute_docs dist/linux-amd64 dist/windows-amd64 dist/macosx-amd64 dist/raspbian-arm7
 
