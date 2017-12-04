@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"flag"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -17,11 +16,13 @@ import (
 
 var (
 	// Standard Options
-	showHelp     bool
-	showLicense  bool
-	showVersion  bool
-	showExamples bool
-	outFName     string
+	showHelp             bool
+	showLicense          bool
+	showVersion          bool
+	showExamples         bool
+	outputFName          string
+	generateMarkdownDocs bool
+	quiet                bool
 
 	// App Options
 	packageName  string
@@ -31,103 +32,95 @@ var (
 	requiredExt  string
 )
 
-func init() {
+func main() {
+	app := cli.NewCli(pkgassets.Version)
+	appName := app.AppName()
+
+	// Document non-option parameters
+	app.AddParams("VARIABLE_NAME", "DIR_HOLDING_ASSETS", "[VARIABLE_NAME DIR_HOLDING_ASSETS ...]")
+
+	// Add Help Docs
+	app.AddHelp("license", []byte(fmt.Sprintf(pkgassets.LicenseText, appName, pkgassets.Version)))
+	app.AddHelp("description", []byte(fmt.Sprintf("%s", Help["description"])))
+	app.AddHelp("examples", []byte(fmt.Sprintf("%s", Help["example"])))
+
 	// Standard Options
-	flag.BoolVar(&showHelp, "h", false, "display help")
-	flag.BoolVar(&showHelp, "help", false, "display help")
-	flag.BoolVar(&showLicense, "l", false, "display license")
-	flag.BoolVar(&showLicense, "license", false, "display license")
-	flag.BoolVar(&showVersion, "v", false, "display version")
-	flag.BoolVar(&showVersion, "version", false, "display version")
-	flag.BoolVar(&showExamples, "example", false, "display example(s)")
-	flag.StringVar(&outFName, "o", "", "output filename")
-	flag.StringVar(&outFName, "output", "", "output filename")
+	app.BoolVar(&showHelp, "h,help", false, "display help")
+	app.BoolVar(&showLicense, "l,license", false, "display license")
+	app.BoolVar(&showVersion, "v,version", false, "display version")
+	app.BoolVar(&showExamples, "examples", false, "display example(s)")
+	app.StringVar(&outputFName, "o,output", "", "output filename")
+	app.BoolVar(&generateMarkdownDocs, "generate-markdown-docs", false, "generate markdown documentation")
+	app.BoolVar(&quiet, "quiet", false, "suppress error messages")
 
 	// App Options
-	flag.StringVar(&packageName, "p", "", "package name, if missing defauls to lowercase of variable name")
-	flag.StringVar(&packageName, "package", "", "package name, if missing defauls to lowercase of variable name")
-	flag.StringVar(&commentFName, "c", "", "comment file to be included")
-	flag.StringVar(&commentFName, "comment", "", "comment file to be included")
-	flag.StringVar(&stripPrefix, "strip-prefix", "", "strip the prefix from the map key")
-	flag.StringVar(&stripSuffix, "strip-suffix", "", "strip the suffix from the map key")
-	flag.StringVar(&requiredExt, "ext", "", "Only include files with matching extension")
-}
-
-func main() {
-	var (
-		err error
-	)
-	appName := path.Base(os.Args[0])
-	flag.Parse()
-	args := flag.Args()
-
-	cfg := cli.New(appName, "PKGASSETS", pkgassets.Version)
-	cfg.LicenseText = fmt.Sprintf(pkgassets.LicenseText, appName, pkgassets.Version)
-	cfg.UsageText = fmt.Sprintf("%s", Help["usage"])
-	cfg.DescriptionText = fmt.Sprintf("%s", Help["description"])
-	cfg.OptionText = "## OPTIONS \n\n"
-	cfg.ExampleText = fmt.Sprintf("%s", Help["example"])
+	app.StringVar(&packageName, "p", "", "package name, if missing defauls to lowercase of variable name")
+	app.StringVar(&packageName, "package", "", "package name, if missing defauls to lowercase of variable name")
+	app.StringVar(&commentFName, "c", "", "comment file to be included")
+	app.StringVar(&commentFName, "comment", "", "comment file to be included")
+	app.StringVar(&stripPrefix, "strip-prefix", "", "strip the prefix from the map key")
+	app.StringVar(&stripSuffix, "strip-suffix", "", "strip the suffix from the map key")
+	app.StringVar(&requiredExt, "ext", "", "Only include files with matching extension")
 
 	// map in our help and examples
 	for k, v := range Help {
-		cfg.AddHelp(k, fmt.Sprintf("%s", v))
+		app.AddHelp(k, v)
 	}
 	for k, v := range Examples {
-		cfg.AddExample(k, fmt.Sprintf("%s", v))
+		app.AddHelp("example-"+k, v)
 	}
+
+	app.Parse()
+	args := app.Args()
+
+	// Setup IO
+	var err error
+
+	app.Eout = os.Stderr
+	/*
+		app.In, err = cli.Open(inputFName, os.Stdin)
+		cli.ExitOnError(app.Eout, err, quiet)
+		defer cli.CloseFile(inputFName, app.In)
+	*/
+
+	app.Out, err = cli.Create(outputFName, os.Stdout)
+	cli.ExitOnError(app.Eout, err, quiet)
+	defer cli.CloseFile(outputFName, app.Out)
 
 	// Process flags and update the environment as needed.
-	if showHelp == true {
+	if showHelp || showExamples {
 		if len(args) > 0 {
-			fmt.Println(cfg.Help(args...))
+			fmt.Fprintln(app.Out, app.Help(args...))
 		} else {
-			fmt.Println(cfg.Usage())
+			app.Usage(app.Out)
 		}
 		os.Exit(0)
 	}
-
-	if showExamples == true {
-		if len(args) > 0 {
-			fmt.Println(cfg.Example(args...))
-		} else {
-			fmt.Printf("\n%s", cfg.Example())
-		}
+	if showLicense {
+		fmt.Fprintln(app.Out, app.License())
 		os.Exit(0)
 	}
-
-	if showLicense == true {
-		fmt.Println(cfg.License())
-		os.Exit(0)
-	}
-	if showVersion == true {
-		fmt.Println(cfg.Version())
+	if showVersion {
+		fmt.Fprintln(app.Out, app.Version())
 		os.Exit(0)
 	}
 
 	if len(args) < 2 {
-		fmt.Fprintf(os.Stderr, cfg.Usage())
-		fmt.Fprintf(os.Stderr, "\n")
+		app.Usage(app.Eout)
+		fmt.Fprintf(app.Eout, "\n")
 		if len(args) < 1 {
-			fmt.Fprintf(os.Stderr, "Missing map variable name\n")
+			fmt.Fprintf(app.Eout, "Missing map variable name\n")
 		}
 		if len(args) < 2 {
-			fmt.Fprintf(os.Stderr, "Missing asset directory name\n")
+			fmt.Fprintf(app.Eout, "Missing asset directory name\n")
 		}
 		os.Exit(1)
 	}
 	if (len(args) % 2) != 0 {
-		fmt.Fprintf(os.Stderr, "Missing variable/assets directory names must be paired\n")
-		fmt.Fprintf(os.Stderr, "Paramters provided, %q\n", strings.Join(args, ", "))
+		fmt.Fprintf(app.Eout, "Missing variable/assets directory names must be paired\n")
+		fmt.Fprintf(app.Eout, "Paramters provided, %q\n", strings.Join(args, ", "))
 		os.Exit(1)
 	}
-
-	// Write out the Go source file.
-	fp, err := cli.Create(outFName, os.Stdout)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Can't write %s, %s\n", outFName, err)
-		os.Exit(1)
-	}
-	defer fp.Close()
 
 	// For each pair of mapVName/assetDir add a map to outFName
 	for i := 0; (i + 1) < len(args); i += 2 {
@@ -136,25 +129,24 @@ func main() {
 		if packageName == "" {
 			packageName = strings.ToLower(mapVName)
 		}
-		if outFName == "" {
-			outFName = strings.ToLower(packageName) + ".go"
+		if outputFName == "" {
+			outputFName = strings.ToLower(packageName) + ".go"
 		}
 		commentSrc := []byte{}
 		if commentFName != "" {
 			commentSrc, err = ioutil.ReadFile(commentFName)
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "Can't read %s, %s\n", commentFName, err)
-				os.Exit(1)
+				cli.ExitOnError(app.Eout, fmt.Errorf("Can't read %s, %s\n", commentFName, err), quiet)
 			}
 		}
 
 		if len(commentSrc) > 0 {
-			fmt.Fprintf(fp, "\n//\n// %s\n//\n", bytes.Replace(commentSrc, []byte("\n"), []byte("\n// "), -1))
+			fmt.Fprintf(app.Out, "\n//\n// %s\n//\n", bytes.Replace(commentSrc, []byte("\n"), []byte("\n// "), -1))
 		}
 		if i == 0 {
-			fmt.Fprintf(fp, "package %s\n\nvar (\n\n", packageName)
+			fmt.Fprintf(app.Out, "package %s\n\nvar (\n\n", packageName)
 		}
-		fmt.Fprintf(fp, `    // %s is a map to asset files associated with %s package
+		fmt.Fprintf(app.Out, `    // %s is a map to asset files associated with %s package
     %s = map[string][]byte{`, mapVName, packageName, mapVName)
 		// Walk the asset directory structure and for each file found at it to the map...
 		if err = filepath.Walk(assetDir, func(walkingPath string, info os.FileInfo, err error) error {
@@ -173,24 +165,24 @@ func main() {
 			if requiredExt == "" || requiredExt == fExt {
 				bArray, err := ioutil.ReadFile(walkingPath)
 				if err != nil {
-					fmt.Fprintf(os.Stderr, "Can't read %q, %s", walkingPath, err)
+					cli.OnError(app.Eout, fmt.Errorf("Can't read %q, %s", walkingPath, err), quiet)
 					return nil
 				}
 				if bSrc, err := pkgassets.ByteArrayToDecl(bArray); err == nil {
-					fmt.Fprintf(fp, "\n    %q: %s,\n", fPath, bSrc)
+					fmt.Fprintf(app.Out, "\n    %q: %s,\n", fPath, bSrc)
 				} else {
-					fmt.Fprintf(os.Stderr, "Can't convert to byte array notation %s, %s\n", walkingPath, err)
+					cli.OnError(app.Eout, fmt.Errorf("Can't convert to byte array notation %s, %s\n", walkingPath, err), quiet)
 				}
 			}
 			return nil
 		}); err != nil {
-			fmt.Fprintf(os.Stderr, "Can't walk path %q, %s\n", assetDir, err)
+			cli.OnError(app.Eout, fmt.Errorf("Can't walk path %q, %s\n", assetDir, err), quiet)
 		}
-		fmt.Fprintf(fp, `
+		fmt.Fprintf(app.Out, `
 	}
 `)
 	}
-	fmt.Fprintf(fp, `
+	fmt.Fprintf(app.Out, `
 )
 
 `)
