@@ -125,6 +125,12 @@ func main() {
 	// For each pair of mapVName/assetDir add a map to outFName
 	for i := 0; (i + 1) < len(args); i += 2 {
 		mapVName, assetDir := args[i], args[i+1]
+		if mapVName == "" {
+			cli.ExitOnError(app.Eout, fmt.Errorf("Expected mapVName to be non-empty stirng for parameter %d", i), quiet)
+		}
+		if assetDir == "" {
+			cli.ExitOnError(app.Eout, fmt.Errorf("Expected assetDir to be non-empty string for parameter %d", i+1), quiet)
+		}
 
 		if packageName == "" {
 			packageName = strings.ToLower(mapVName)
