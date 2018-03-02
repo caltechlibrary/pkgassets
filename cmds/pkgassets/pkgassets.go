@@ -25,12 +25,22 @@ var (
 	quiet                bool
 
 	// App Options
-	packageName  string
-	commentFName string
-	stripPrefix  string
-	stripSuffix  string
-	requiredExt  string
+	packageName   string
+	commentFName  string
+	stripPrefix   string
+	stripSuffix   string
+	requiredExt   string
+	excludeFNames string
 )
+
+func isExcluded(fName string, fList []string) bool {
+	for _, s := range fList {
+		if fName == s {
+			return true
+		}
+	}
+	return false
+}
 
 func main() {
 	app := cli.NewCli(pkgassets.Version)
@@ -61,6 +71,7 @@ func main() {
 	app.StringVar(&stripPrefix, "strip-prefix", "", "strip the prefix from the map key")
 	app.StringVar(&stripSuffix, "strip-suffix", "", "strip the suffix from the map key")
 	app.StringVar(&requiredExt, "ext", "", "Only include files with matching extension")
+	app.StringVar(&excludeFNames, "X,exclude", "", "A colon separted list of filenames to exclude, (e.g. 'nav.md:topics.md')")
 
 	// map in our help and examples
 	for k, v := range Help {
@@ -122,6 +133,8 @@ func main() {
 		os.Exit(1)
 	}
 
+	excluded := strings.Split(excludeFNames, ":")
+
 	// For each pair of mapVName/assetDir add a map to outFName
 	for i := 0; (i + 1) < len(args); i += 2 {
 		mapVName, assetDir := args[i], args[i+1]
@@ -157,6 +170,9 @@ func main() {
 		// Walk the asset directory structure and for each file found at it to the map...
 		if err = filepath.Walk(assetDir, func(walkingPath string, info os.FileInfo, err error) error {
 			if info.IsDir() {
+				return nil
+			}
+			if isExcluded(path.Base(walkingPath), excluded) {
 				return nil
 			}
 
