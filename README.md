@@ -75,4 +75,4 @@ name will be the name of the package plus the ".go" extension.
 
 Related examples: [help](examples/help.html), [htdocs](examples/htdocs.html).
 
-pkgassets v0.0.4
+pkgassets v0.0.6

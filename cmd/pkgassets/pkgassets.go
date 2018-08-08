@@ -16,13 +16,14 @@ import (
 
 var (
 	// Standard Options
-	showHelp             bool
-	showLicense          bool
-	showVersion          bool
-	showExamples         bool
-	outputFName          string
-	generateMarkdownDocs bool
-	quiet                bool
+	showHelp         bool
+	showLicense      bool
+	showVersion      bool
+	showExamples     bool
+	outputFName      string
+	generateMarkdown bool
+	generateManPage  bool
+	quiet            bool
 
 	// App Options
 	packageName   string
@@ -60,7 +61,8 @@ func main() {
 	app.BoolVar(&showVersion, "v,version", false, "display version")
 	app.BoolVar(&showExamples, "examples", false, "display example(s)")
 	app.StringVar(&outputFName, "o,output", "", "output filename")
-	app.BoolVar(&generateMarkdownDocs, "generate-markdown-docs", false, "generate markdown documentation")
+	app.BoolVar(&generateMarkdown, "generate-markdown", false, "generate markdown documentation")
+	app.BoolVar(&generateManPage, "generate-manpage", false, "generate man page")
 	app.BoolVar(&quiet, "quiet", false, "suppress error messages")
 
 	// App Options
@@ -99,6 +101,14 @@ func main() {
 	defer cli.CloseFile(outputFName, app.Out)
 
 	// Process flags and update the environment as needed.
+	if generateMarkdown {
+		app.GenerateMarkdown(app.Out)
+		os.Exit(0)
+	}
+	if generateManPage {
+		app.GenerateManPage(app.Out)
+		os.Exit(0)
+	}
 	if showHelp || showExamples {
 		if len(args) > 0 {
 			fmt.Fprintln(app.Out, app.Help(args...))
